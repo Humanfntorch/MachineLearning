@@ -1,5 +1,6 @@
-Recursively creates a Decision Tree classifer with the specified arguments. Returns calculated decision tree as nested dictionary.
-# decision_tree(data, label_name, maxDepth, splitAlgorithm, maxChildren:float = np.inf, randForest = None): 
+# Recursively creates a Decision Tree classifer with the specified arguments. Returns calculated decision tree as nested dictionary.
+
+ decision_tree(data, label_name, maxDepth, splitAlgorithm, maxChildren:float = np.inf, randForest = None): 
 * data -> a Pandas Dataframe of all data (including column names and label data); 
 * label_name -> Name of label column as type string
 * maxDepth -> The maximum depth wanted for the tree
