@@ -129,49 +129,49 @@ dfTest.y = pd.Series(np.where(dfTest.y.values == 'yes', 1, -1),
           dfTest.index)
 
 
-ada = Ada_Boost()
-adatrainErr = []
-adatrainPredErr = []
-adatestErr = []
-adatestPredErr = []
-T = 500
-ada.build_stumps(dfTrain, 'y', T)
-print("Beginning Predictions")
-for i in range(0, T, 1):
-    print("Performing prediction with stumps: ", i + 1)
-    h_fTrain = ada.predict_vote(dfTrain, 'y', i)
-    adatrainPredErr.append(ada.predictErrors[i])
-    trerr, trcorr = pred_scores(h_fTrain, dfTrain, 'y')
-    h_fTest = ada.predict_vote(dfTest, 'y', i)
-    adatestPredErr.append(ada.predictErrors[i])
-    testerr, testcorr = pred_scores(h_fTest, dfTest, 'y')
-    adatrainErr.append(trerr)
-    adatestErr.append(testerr)
+# ada = Ada_Boost()
+# adatrainErr = []
+# adatrainPredErr = []
+# adatestErr = []
+# adatestPredErr = []
+# T = 50
+# ada.build_stumps(dfTrain, 'y', T)
+# print("Beginning Predictions")
+# for i in range(0, T, 1):
+#     print("Performing prediction with stumps: ", i + 1)
+#     h_fTrain = ada.predict_vote(dfTrain, 'y', i)
+#     adatrainPredErr.append(ada.predictErrors[i])
+#     trerr, trcorr = pred_scores(h_fTrain, dfTrain, 'y')
+#     h_fTest = ada.predict_vote(dfTest, 'y', i)
+#     adatestPredErr.append(ada.predictErrors[i])
+#     testerr, testcorr = pred_scores(h_fTest, dfTest, 'y')
+#     adatrainErr.append(trerr)
+#     adatestErr.append(testerr)
 
 
-x = np.arange(0, T, 1)
+# x = np.arange(0, T, 1)
 
 
-fig, ax = plt.subplots()
-ax.plot(x, adatrainErr, label = 'TrainErr')
-ax.plot(x, adatestErr, label = 'TestErr')
-ax.set_xlabel('T: Iterations')
-ax.set_ylabel("Number of Errors")
-ax.set_title("Errors vs Number of Iterations AdaBoost")
-ax.legend(loc='upper right')
-fig.savefig("TrainTestAda.png")
+# fig, ax = plt.subplots()
+# ax.plot(x, adatrainErr, label = 'TrainErr')
+# ax.plot(x, adatestErr, label = 'TestErr')
+# ax.set_xlabel('T: Iterations')
+# ax.set_ylabel("Number of Errors")
+# ax.set_title("Errors vs Number of Iterations AdaBoost")
+# ax.legend(loc='upper right')
+# fig.savefig("TrainTestAda.png")
 
 
-fig, ax = plt.subplots()
-ax.plot(x, adatrainErr, alpha=0.5, label='Train Err')
-ax.plot(x, adatrainPredErr,  alpha=0.5, label='Train Prediction Err')
-ax.plot(x, adatestErr, alpha=0.5, label='Test Err')
-ax.plot(x, adatestPredErr, alpha=0.5, label='Test Prediction Err')
-ax.set_xlabel('Number of Classifiers')
-ax.set_ylabel("Number of Errors")
-ax.set_title("All Errors per Stump")
-ax.legend(loc='upper right')
-fig.savefig("AllErrorsAda.png")
+# fig, ax = plt.subplots()
+# ax.plot(x, adatrainErr, alpha=0.5, label='Train Err')
+# ax.plot(x, adatrainPredErr,  alpha=0.5, label='Train Prediction Err')
+# ax.plot(x, adatestErr, alpha=0.5, label='Test Err')
+# ax.plot(x, adatestPredErr, alpha=0.5, label='Test Prediction Err')
+# ax.set_xlabel('Number of Classifiers')
+# ax.set_ylabel("Number of Errors")
+# ax.set_title("All Errors per Stump")
+# ax.legend(loc='upper right')
+# fig.savefig("AllErrorsAda.png")
 
 class BaggedTrees:
     def __init__(self):
@@ -180,89 +180,89 @@ class BaggedTrees:
         self.predictErrors = []
         self.alphas = []
     
-    def buildTrees(self, data, label_name, T):
+    def buildBaggedTrees(self, data, label_name, T, treeDepth = None):
         self.trees = []
         self.trainErrors = []
         self.predictErrors = []
+        if(treeDepth is None):
+            treeDepth = len(data.columns) - 1
+        bootStrapData = data.drop(columns = label_name)
         for i in range(T):
-            bootStrapSamples = data.sample(n = len(data), replace = True)
-            tree = dt.decision_tree(bootStrapSamples, label_name, maxDepth = len(bootStrapSamples.columns) - 1, splitAlgorithm = dt.ENTROPYFLAG, maxChildren = 2)
+            bootStrapSamples = bootStrapData.sample(n = len(bootStrapData), replace = True)
+            tree = dt.decision_tree(data.iloc[bootStrapSamples.index], label_name, maxDepth = treeDepth, splitAlgorithm = dt.ENTROPYFLAG)
             self.trees.append(tree)
             print("tree done: ", i)
             
             
-    def Random_Forest(self, data, label_name, num_attributes, T):
+    def Random_Forest(self, data, label_name, num_attributes, T, treeDepth = None):
         self.trees = []
         self.trainErrors = []
         self.predictErrors = []
-        for i in range(T):
-            bootStrapSamples = data.sample(n = len(data), replace = True)
-            tree = dt.decision_tree(bootStrapSamples, label_name, maxDepth = len(bootStrapSamples.columns) - 1, splitAlgorithm = dt.ENTROPYFLAG, maxChildren = 2, randForest = num_attributes)
+        if(treeDepth is None):
+            treeDepth = len(data.columns) - 1
+        bootStrapData = data.drop(columns = label_name)
+
+        for i in range(0, T, 1):
+            bootStrapSamples = bootStrapData.sample(n = len(bootStrapData), replace = True)
+            tree = dt.decision_tree(data.iloc[bootStrapSamples.index], label_name, maxDepth = treeDepth, splitAlgorithm = dt.ENTROPYFLAG, randForest = num_attributes)
             self.trees.append(tree)
             print("tree done: ", i)
         
     def vote(self, data, label_name, T):
         h_t = []
-        trainErrors = [0]*len(self.trees)
-        tmpTrees = self.trees.copy()
-        for i in range(0, T):
-            if(self.trees[i] in tmpTrees):
-                hf, predErr = dt.prediction(self.trees[i], data, label_name)
-                # assign prediction to duplicate stumps. Helps optimize tot program
-                duplicates = [i for i, tree in enumerate(self.trees) if tree in self.trees]
-                for idx in duplicates:
-                    h_t.append(hf)
-                    trainErrors[idx] += predErr
-                    tmpTrees[idx] = None
-        
+        self.trainErrors = []
+        for i in range(0, T, 1):
+            hf, predErr = dt.prediction(self.trees[i], data, label_name)
+            h_t.append(hf)
+            self.trainErrors.append(predErr)
         h_final = np.sign(np.sum(h_t, 0))
-        return h_final, trainErrors
+        return h_final
         
 
-bt = BaggedTrees()
+# bt = BaggedTrees()
 
-trainErr = []
-trainPredErr = []
-testErr = []
-testPredErr = []
+# trainErr = []
+# trainPredErr = []
+# testErr = []
+# testPredErr = []
 
-T = 500
-bt.buildTrees(dfTrain, 'y', T)
+# T = 5
+# bt.buildBaggedTrees(dfTrain, 'y', T)
 
-print("Beginning Predictions")
-for i in range(0, T, 1):
-    print("Performing prediction with trees: ", i + 1)
-    h_fTrain, trainPredErr = bt.vote(dfTrain, 'y', i)
-    trerr, trcorr = pred_scores(h_fTrain, dfTrain, 'y')
-    h_fTest, testPredErr = bt.vote(dfTest, 'y', i)
-    testerr, testcorr = pred_scores(h_fTest, dfTest, 'y')
-    trainErr.append(trerr)
-    testErr.append(testerr)
-
-
-
-x = np.arange(0, T, 1)
+# print("Beginning Predictions")
+# for i in range(0, T, 1):
+#     print("Performing prediction with trees: ", i + 1)
+#     h_fTrain, trainPredErr = bt.vote(dfTrain, 'y', i + 1)
+#     trerr, trcorr = pred_scores(h_fTrain, dfTrain, 'y')
+#     h_fTest, testPredErr = bt.vote(dfTest, 'y', i + 1)
+#     testerr, testcorr = pred_scores(h_fTest, dfTest, 'y')
+#     trainErr.append(trerr)
+#     testErr.append(testerr)
 
 
-fig, ax = plt.subplots()
-ax.plot(x, trainErr, label = 'TrainErr')
-ax.plot(x, testErr, label = 'TestErr')
-ax.set_xlabel('T: Iterations')
-ax.set_ylabel("Number of Errors")
-ax.set_title("Errors vs Number of Iterations BaggedTrees")
-ax.legend(loc='upper right')
-fig.savefig("TrainTestBT.png")
 
-fig, ax = plt.subplots()
-ax.plot(x, trainErr, alpha=0.5, label='Train Err')
-ax.plot(x, trainPredErr, alpha=0.5, label='Train Prediction Err')
-ax.plot(x, testErr, alpha=0.5, label='Test Err')
-ax.plot(x, testPredErr, alpha=0.5, label='Test Prediction Err')
-ax.set_xlabel('Number of Classifiers')
-ax.set_ylabel("Number of Errors")
-ax.set_title("All Errors per Tree")
-ax.legend(loc='upper right')
-fig.savefig("AllErrorsBT.png")
+# x = np.arange(0, T, 1)
+
+
+# fig, ax = plt.subplots()
+# ax.plot(x, trainErr, label = 'TrainErr')
+# ax.plot(x, testErr, label = 'TestErr')
+# ax.set_xlabel('T: Iterations')
+# ax.set_ylabel("Number of Errors")
+# ax.set_title("Errors vs Number of Iterations BaggedTrees")
+# ax.legend(loc='upper right')
+# fig.savefig("TrainTestBT.png")
+
+# fig, ax = plt.subplots()
+# ax.plot(x, trainErr, alpha=0.5, label='Train Err')
+# ax.plot(x, trainPredErr, alpha=0.5, label='Train Prediction Err')
+# ax.plot(x, testErr, alpha=0.5, label='Test Err')
+# ax.plot(x, testPredErr, alpha=0.5, label='Test Prediction Err')
+# ax.set_xlabel('Number of Classifiers')
+# ax.set_ylabel("Number of Errors")
+# ax.set_title("All Errors per Tree")
+# ax.legend(loc='upper right')
+# fig.savefig("AllErrorsBT.png")
 
 
 bt = BaggedTrees()
@@ -272,16 +272,18 @@ trainPredErrRF = []
 testErrRF = []
 testPredErrRF = []
 
-T = 500
+T = 5
 num_att = [2, 4, 6]
-bt.Random_Forest(dfTrain, 'y', num_att, T)
+bt.Random_Forest(dfTrain, 'y', num_att, T, treeDepth = 4)
 
 print("Beginning Random Forest Predictions")
 for i in range(0, T, 1):
     print("Performing prediction with trees: ", i + 1)
-    h_fTrain, trainPredErrRF = bt.vote(dfTrain, 'y', i)
+    h_fTrain = bt.vote(dfTrain, 'y', i + 1)
+    trainPredErrRF.append(bt.trainErrors[i])
     trerr, trcorr = pred_scores(h_fTrain, dfTrain, 'y')
-    h_fTest, testPredErrRF = bt.vote(dfTest, 'y', i)
+    h_fTest= bt.vote(dfTest, 'y', i + 1)
+    testPredErrRF.append(bt.trainErrors[i]) 
     testerr, testcorr = pred_scores(h_fTest, dfTest, 'y')
     trainErrRF.append(trerr)
     testErrRF.append(testerr)
