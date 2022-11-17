@@ -83,13 +83,14 @@ class LSM_Regression:
             if(i > 1):
                 if(self.thresholdMet(self.weights[i - 1], w_i, threshold)):
                     self.rates.append(r)
-                    break
+                    return w
                 if(j_t > self.costs[i - 1] and r > 0.0002 or i % 5 == 0 and r > 0.002):
                     if(r > 0.2):
                         r -= 0.05
                     else:
                         r /= 1.0001
                     self.rates.append(r)
+        return w
         
     def stoch_gradient_descent(self, data, label_name, r, threshold, num_iter , batch_size = 1):
         # Clear each field member before a new call
@@ -110,29 +111,34 @@ class LSM_Regression:
         w = pd.DataFrame(data = weightData)
         
         for i in range(0, num_iter):
-            # Pull batch_size members at random.
-            sampleData = data.sample(n = batch_size)
-            y = sampleData[label_name]
-            x = sampleData.drop(columns=[label_name])
-            y_t = y_pred(x, w, b)
-            j_t = cost(b, y_t, y)
-            self.costs.append(j_t)
-            self.y_predicts.append(y_t)
-           
-            b_i, w_i = tune_params(x, y, y_t, b, w, r)
-            b = b_i
-            w = w_i
-            self.weights.append(w.values)
-            self.biases.append(b)
-            self.w_f = w.values
-            self.b_f = b
-            if(i > 1):
-                if(self.thresholdMet(self.weights[i - 1], w_i, threshold)):
-                    self.rates.append(r)
-                    return w.values
-                else:
-                    r /= 1.004
-                self.rates.append(r)
+            sampleData = data
+            counter = 0
+            while(len(sampleData) > 0):
+                # Pull batch_size members at random.
+                sampleElement = sampleData.sample(n = batch_size)
+                sampleData = sampleData.drop(sampleElement.index)
+                y = sampleElement[label_name]
+                x = sampleElement.drop(columns=[label_name])
+                y_t = y_pred(x, w, b)
+                j_t = cost(b, y_t, y)
+                self.costs.append(j_t)
+                self.y_predicts.append(y_t)
+                b_i, w_i = tune_params(x, y, y_t, b, w, r)
+                b = b_i
+                w = w_i
+                self.weights.append(w.values)
+                self.biases.append(b)
+                self.w_f = w.values
+                self.b_f = b
+                if(counter > 1):
+                    if(self.thresholdMet(self.weights[counter - 1], w_i, threshold)):
+                        self.rates.append(r)
+                        print("exited system")
+                        return w.values
+                    else:
+                        r /= 1.004
+                        self.rates.append(r)
+                counter += 1
         return w.values
     
     def predict(self, x, w, b):
@@ -227,16 +233,17 @@ dfTrain.columns = cols
 
 ### ACTUAL DATA WITH COST PLOT: GRADIENT DESCENT
 
-# reg = LSM_Regression()
-# reg.gradient_descent(dfTrain, 'label', 1, 1e-10, 1000)
-# costs = np.asarray(reg.costs)
-# steps = np.arange(0, len(reg.costs), 1)
-# plt.figure(1)
-# plt.plot(steps, costs, label="Cost")
-# plt.xlabel("Number of Steps")
-# plt.ylabel("Cost Function")
-# plt.title("Cost per step")
+reg = LSM_Regression()
+w = reg.gradient_descent(dfTrain, 'label', 1, 1e-10, 1000)
+costs = np.asarray(reg.costs)
+steps = np.arange(0, len(reg.costs), 1)
+plt.figure(1)
+plt.plot(steps, costs, label="Cost")
+plt.xlabel("Number of Steps")
+plt.ylabel("Cost Function")
+plt.title("Cost per step")
 
+print("Grad Descent: ", w)
 
 ## PLOT OF Y_PRED VS ACTUAL TEST Y
 
@@ -260,7 +267,7 @@ dfTrain.columns = cols
 # batch_size = 2, 3 works very consistently. size = 1 is somewhat consistently.
 # r = 0.3, t = 2000
 reg = LSM_Regression()
-w = reg.stoch_gradient_descent(dfTrain, 'label', 0.3, 1e-6, 2000, batch_size = 1)
+w = reg.stoch_gradient_descent(dfTrain, 'label', 0.3, 1e-6, 100, batch_size = 1)
 costs = np.asarray(reg.costs)
 steps = np.arange(0, len(reg.costs), 1)
 plt.figure(1)
@@ -268,7 +275,7 @@ plt.plot(steps,costs, label="Cost")
 plt.xlabel("Number of Steps")
 plt.ylabel("Cost Function")
 plt.title("Cost per step")
-print(w)
+print("Stoch Grad Descent: ", w)
 
 
 ## PLOT OF Y_PRED VS ACTUAL TEST Y
@@ -312,4 +319,5 @@ print(w)
 #     pred_y = np.dot(x, reg.weights[len(reg.weights) - 1] + reg.biases[len(reg.biases) - 1])
 #     plt.plot(x[:, i], pred_y, label = "Predicted Line")
 ### END OF FUN TESTING
+            
             
