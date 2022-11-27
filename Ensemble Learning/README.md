@@ -24,7 +24,7 @@ There are two primary classes: AdaBoost and BaggedTrees. The description of each
 * data -> Pandas DataFrame of data containing values to use for ada predictions
 * label_name -> String representation of the column containing the label
 * T -> The number of stumps to use in adaboost prediction calculation.
-* ~ Returns: h_final -> The final voted prediction determined using T stumps.
+* Returns: h_final -> The final voted prediction determined using T stumps.
 
  Class: BaggedTrees
 * Object -> Controls method implementation of the adaboost algorithm.
