@@ -24,7 +24,7 @@
   * r -> The initial learning rate to be used in the gradient descent
   * threshold -> The threshold to determine whether conditional requirement of convergence is met
   * T -> The number of epochs to use (if convergence isn't met earlier
-  ~ Returns: The final calculated optimized weight vector. 
+  * Returns: The final calculated optimized weight vector. 
   
 # Stochastic gradient descent algorithm uses batch size number of data each calculation to update the weight vector (until entire dataset is seen) for each epoch in T (convergence condition isn't implemented in stochastic gradient descent. All i in num_iter will be iterated through to calculate the final weight vector).
  # stoch_gradient_descent(self, data, label_name, r, threshold, num_iter , batch_size = 1):
@@ -34,14 +34,14 @@
   * threshold -> The threshold to determine whether conditional requirement of convergence is met
   * num_iter -> The number of epochs used to process the gradient descent
   * batch_size -> The number of data points used in each weight calculation (default is at least one data point).
-  ~ Returns: The final calculated optimized weight vector. 
+  * Returns: The final calculated optimized weight vector. 
  
  # Uses the fitted form of either Gradient Descent or Stochastic Gradient Descent to predict the labeling of a given set of data (eq: y_hat = (x dot w + b)
   # predict(self, x, w, b):
   * x -> The data set used to form prediction
   * w -> The calculated weight vector from either implementation of gradient descent.
   * b -> The calculated bias term from either implementation of gradient descent. 
-  ~ Returns: Regression prediction value from calculated weight + bias using x of the form: y = mx + b  
+  * Returns: Regression prediction value from calculated weight + bias using x of the form: y = mx + b  
 
  
   
