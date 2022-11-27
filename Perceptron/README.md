@@ -15,14 +15,14 @@
   * label_name -> Name of label column as type string 
   * r -> The learning rate used to optimize the weights based on prediction errors.
   * epoch -> The number of iterations used to determine the optimal set of weights for predictions.
-  ~ Returns: The final optimized weight as determined by the perceptron algorithm.
+  * Returns: The final optimized weight as determined by the perceptron algorithm.
   
   
 # Calculates the binary prediction calculated from input data, x, and the weight vector given.
  # predict(self, x, w):
   * x -> Input data for which binary prediction is needed (size: NxM)
   * w -> Weight vector used to calculate binary prediction of the form y = sgn(wx) (size = M)
-  ~ Returns: The determined binary prediction (-1 = False; 1 = True) (size = N)
+  * Returns: The determined binary prediction (-1 = False; 1 = True) (size = N)
  
  # Determines the accuracy for the fitted perceptron object given the input data x, the true prediction y, and the variation of the perceptron prediction scheme. Primary method for determining how well the perceptron algorithm was able to fit and predict against given data. 
  Valid variations for perceptron prediction schema: 
@@ -30,8 +30,9 @@
  'avg' -> Uses the average perceptron prediction from all encountered sets of weights seen during fit (including total longevity of weights). Preferred variant
  'vote' -> Uses the voted average perceptron prediction from all encountered sets of weights seen during fit (including total longegivty of weights). 
   # accuracy(self, x, y, variant = 'std'):
-   * x -> Input data used to calculate prediction binary labeling scheme (expected as numpy array)
-   * y -> The true binary labeling scheme used to calculate accuracy of fitted perceptron model.
+   * x -> Input data used to calculate prediction binary labeling scheme (expected as Pandas dataframe)
+   * y -> The true binary labeling scheme used to calculate accuracy of fitted perceptron model (expected as Pandas dataframe)
    * variant -> The variant used to calculate perceptron prediction, default is standard (see above for further variations).
+   * Returns: The accuracy of the perceptron fit against the true labeling scheme found in y determined by: # of correct predictions/len(y)
   
   All other methods are assumed to be private. Use at own risk.
