@@ -6,7 +6,6 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import time
 
 # Initializes a node in the network graph. 
     # Each node has at least one incoming edge (base value or calculated)
@@ -24,19 +23,6 @@ class node:
     def p_sigmoid(self, x):
         return (self.sigmoid(x)*(1 - self.sigmoid(x)))
         # return 1-np.tanh(x)**2;
-
-class hidden_layer(node):
-    def __init__(self):
-        return
-    
-    def forward_propagate(self, x):
-        self.in_edge = x
-        self.out_edge = self.sigmoid(self.in_edge)
-        return(self.out_edge)
-    
-    def back_propagate(self, gradient, learn_rate):
-        return (self.p_sigmoid(self.in_edge)*gradient)
-    
 
 # Each layer is composed of a defined number of nodes, each with:
     # A set of weights where w_ij belongs to node i and connects to node j
