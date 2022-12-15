@@ -18,11 +18,9 @@ class node:
         
     def sigmoid(self, x):
         return 1 / (1 + np.exp(-x))
-        # return np.tanh(x)
     
     def p_sigmoid(self, x):
         return (self.sigmoid(x)*(1 - self.sigmoid(x)))
-        # return 1-np.tanh(x)**2;
 
 # Each layer is composed of a defined number of nodes, each with:
     # A set of weights where w_ij belongs to node i and connects to node j
