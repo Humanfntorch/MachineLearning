@@ -1,10 +1,10 @@
 # Implementation of a Neural Network that utilizes the sigmoid activation function (sigma = (1 + exp(-x))^-1) and stochastic gradient descent with n number of layers to solve binary classification problems.
 
-# Initializes a node in the network graph. 
-    # Each node has at least one incoming edge (base value or calculated)
-    # Each node should have at least one outgoing edge
-    # Each node has the ability to use activation function + derivative
 # Class: Node:
+  # Initializes a node in the network graph. 
+   # Each node has at least one incoming edge (base value or calculated)
+   # Each node should have at least one outgoing edge
+   # Each node has the ability to use activation function + derivative
   # Fields:
    * self.in_edge  -> weighted edge values going into this.
    * self.out_edge -> weighted edge values going out of this.
