@@ -11,9 +11,7 @@ based on surveyed data.
 """
 import pandas as pd
 import numpy as np
-from sklearn.tree import DecisionTreeClassifier
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
-from sklearn.pipeline import make_pipeline
 import seaborn as sn
 import matplotlib.pyplot as plt
 import csv
@@ -47,10 +45,6 @@ fracTestNA = testNA / len(dfTest) # 0~ 7.4%
 corrNA = dfTrain.dropna() # Used to test correlations
 dfTrain = dfTrain.dropna()
 
-# sanity check: Ensure dropped NA dfs have expected sizes
-# assert len(xtr) + trainNA == len(dfTrain)
-# assert len(ytr) + trainNA == len(dfTrain)
-
 
 # # Determine percentages of yes/no labels
 # lessThan = len(ytr[ytr == 0]) / len(ytr) # ~ 75.1%
@@ -69,11 +63,6 @@ plt.show()
 # drop 'fnlwgt' due to no corr
 # dfTrain = dfTrain.drop(columns = ['fnlwgt'])
 # dfTest = dfTest.drop(columns = ['fnlwgt'])
-# xtr = xtr.drop(columns = ['fnlwgt'])
-# ytr = dfTrain.dropna().drop(columns = ['fnlwgt'])
-# ytr = ytr[label_name]
-# # Sanity check. new values should be the same
-# assert len(xtr) == len(ytr)
 
 # Determine numerical atts and categorical atts
 numericalAtts = dfTrain.select_dtypes(include = ['number']).columns
@@ -81,13 +70,7 @@ categoricalAtts = dfTrain.select_dtypes(include = object).columns
 # assert (len(numericalAtts) + len(categoricalAtts)) == len(xtr.columns)
 
 
-
-# encode categorical type values
-# enc = OneHotEncoder(handle_unknown='ignore')
-# testone = enc.fit(xtr['workclass'])
-
 y = dfTrain[label_name].values
-
 # encoding, which bins categorical types in bins [0, n] for ez numerical manipulation
 features_final = pd.get_dummies(dfTrain)
 for col in dfTrain.drop(columns=[label_name]).columns:
@@ -127,20 +110,6 @@ x = dfTrain.drop(columns = [label_name]).values
 dfTest = dfTest.drop(columns = ["ID"])
 xTest = dfTest.values
 
-
-
-### DECISION TREE CLASSIFIER
-
-# tree = DecisionTreeClassifier(criterion='entropy',
-#     min_samples_split=8,max_depth=10)
-
-# dt = tree.fit(dfTrain.drop(columns=[LBL]), trainLbls)
-
-# idArr = dfTest["ID"]
-# initPredict = dt.predict(dfTest.drop(columns = ["ID"]))
-
-### END DECISION TREE CLASSIFIER
-
 ### RANDOM FOREST REGRESSOR MODEL
 
 # from sklearn.ensemble import RandomForestRegressor
@@ -159,22 +128,6 @@ xTest = dfTest.values
 #     idPredictionList.append([i + 1, y_pred[i]])
 # csvHeader = ["ID", "Prediction"]
 # with open("initPrediction9RF.csv", 'w', newline = '') as f:
-#     writer = csv.writer(f)
-#     writer.writerow(csvHeader)
-#     writer.writerows(idPredictionList)
-
-
-
-# idArr = dfTest["ID"]
-# initPredict = rfTree.predict(dfTest.drop(columns = ["ID"]))
-
-# idPredictionList = list()
-# for i in idArr:
-#     idPredictionList.append([i + 1, initPredict[i]])
-
-# csvHeader = ["ID", "Prediction"]
-# # write values to csv. Use newline = '' to prevent csv writing linebreaks automatically
-# with open("initPrediction5RF.csv", 'w', newline = '') as f:
 #     writer = csv.writer(f)
 #     writer.writerow(csvHeader)
 #     writer.writerows(idPredictionList)
@@ -208,8 +161,11 @@ xTest = dfTest.values
 #     writer.writerow(csvHeader)
 #     writer.writerows(idPredictionList)
 
+### END SGD CLASSIFIER
+
 
 ### SGD REGRESSOR
+
 # from sklearn.linear_model import SGDRegressor
 # clf = SGDRegressor(loss="squared_error", penalty="l2", max_iter = 1000)
 # clf.fit(x, y)
@@ -230,9 +186,11 @@ xTest = dfTest.values
 #     writer.writerow(csvHeader)
 #     writer.writerows(idPredictionList)
 
+### END SGD REGRESSOR
 
 
-### SVM
+### SVM REGRESSION
+
 # from sklearn.svm import SVR
 # clf = SVR(kernel='rbf')
 # clf.fit(x, y)
@@ -252,6 +210,9 @@ xTest = dfTest.values
 #     writer.writerow(csvHeader)
 #     writer.writerows(idPredictionList)
 
+### END SVM REGRESSION
+
+### NEURAL NETWORK
 
 import NN
 # reshape x and xTest to fit neural network
@@ -260,37 +221,39 @@ xTest = xTest.reshape(xTest.shape[0], 1, xTest.shape[1])
 nn = NN.neural_network(1)
 nn.insert_layer(NN.layer((14, 30), False))
 nn.insert_layer(NN.layer((), True))
-# nn.insert_layer(NN.layer((30, 30), False))
-# nn.insert_layer(NN.layer((), True))
-# nn.insert_layer(NN.layer((30, 30), False))
+nn.insert_layer(NN.layer((30, 30), False))
+nn.insert_layer(NN.layer((), True))
+nn.insert_layer(NN.layer((30, 30), False))
 nn.insert_layer(NN.layer((), True))
 nn.insert_layer(NN.layer((30, 1), False))
 nn.insert_layer(NN.layer((), True))
-epochs = 50
+epochs = 500
 nn.train(x, y, epochs)
 y_pred = nn.prediction(x, y)
 y_pred = np.asarray(y_pred)
 y_pred = y_pred.reshape(y_pred.shape[0])
-# y_pred[y_pred > 0.5] = 1
-# y_pred[y_pred <= 0.5] = 0
-# acc = sum(y == y_pred)/len(y)
-# print(acc)
-# y_pred = nn.prediction(xTest, y)
-# y_pred = np.asarray(y_pred)
-# y_pred = y_pred.reshape(y_pred.shape[0])
-# idPredictionList = list()
-# for i in range(len(y_pred)):
-#     idPredictionList.append([i + 1, y_pred[i]])
-# csvHeader = ["ID", "Prediction"]
-# with open("initPredictionNN2.csv", 'w', newline = '') as f:
-#     writer = csv.writer(f)
-#     writer.writerow(csvHeader)
-#     writer.writerows(idPredictionList)    
-# plot_epochs = np.arange(1, epochs + 1, 1)
-# figure, ax = plt.subplots(figsize=(10, 8))
-# line1, = ax.plot(plot_epochs, nn.losses)
-# plt.xlabel("Epoch")
-# plt.ylabel("Loss")
-# plt.title("Loss v Epoch")
+y_pred[y_pred > 0.5] = 1
+y_pred[y_pred <= 0.5] = 0
+acc = sum(y == y_pred)/len(y)
+print(acc)
+y_pred = nn.prediction(xTest, y)
+y_pred = np.asarray(y_pred)
+y_pred = y_pred.reshape(y_pred.shape[0])
+idPredictionList = list()
+for i in range(len(y_pred)):
+    idPredictionList.append([i + 1, y_pred[i]])
+csvHeader = ["ID", "Prediction"]
+with open("initPredictionNN2.csv", 'w', newline = '') as f:
+    writer = csv.writer(f)
+    writer.writerow(csvHeader)
+    writer.writerows(idPredictionList)    
+plot_epochs = np.arange(1, epochs + 1, 1)
+figure, ax = plt.subplots(figsize=(10, 8))
+line1, = ax.plot(plot_epochs, nn.losses)
+plt.xlabel("Epoch")
+plt.ylabel("Loss")
+plt.title("Loss v Epoch")
+
+### END NEURAL NETWORK
         
 
